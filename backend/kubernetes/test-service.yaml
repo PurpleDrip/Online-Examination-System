@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-service
+  namespace: exam-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test-service
+  template:
+    metadata:
+      labels:
+        app: test-service
+    spec:
+      containers:
+      - name: test-service
+        image: exam-test-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8086
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql:3306/exam_test_db?createDatabaseIfNotExist=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-username
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-password
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: exam-config
+              key: EUREKA_SERVER_URL
+        - name: SERVICES_QUESTION-SERVICE_URL
+          value: "http://question-service:8085"
+        - name: SERVICES_MARKS-SERVICE_URL
+          value: "http://marks-service:8087"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-service
+  namespace: exam-system
+spec:
+  ports:
+  - port: 8086
+    targetPort: 8086
+  selector:
+    app: test-service

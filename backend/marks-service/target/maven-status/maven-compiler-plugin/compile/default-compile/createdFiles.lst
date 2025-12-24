@@ -1,0 +1,11 @@
+com\examportal\marks\controller\MarksController.class
+com\examportal\marks\repository\ResultRepository.class
+com\examportal\marks\dto\TestSessionDTO.class
+com\examportal\marks\service\MarksService.class
+com\examportal\marks\dto\QuestionSetDTO.class
+com\examportal\marks\dto\CalculateMarksRequest.class
+com\examportal\marks\dto\QuestionDTO.class
+com\examportal\marks\entity\Result.class
+com\examportal\marks\MarksServiceApplication.class
+com\examportal\marks\service\impl\MarksServiceImpl.class
+com\examportal\marks\dto\DashboardStats.class

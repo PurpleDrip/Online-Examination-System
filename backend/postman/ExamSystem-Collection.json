@@ -1,0 +1,390 @@
+{
+	"info": {
+		"_postman_id": "exam-system-collection",
+		"name": "Online Examination System",
+		"description": "Complete API testing workflow for the Online Examination System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "questionSetId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "testSessionId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "usn",
+			"value": "1MS22CS023",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Question Management",
+			"item": [
+				{
+					"name": "Get All Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/questions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "questions"]
+						}
+					}
+				},
+				{
+					"name": "Get Questions by Semester and Department",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/questions?semester=6&department=CS",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "questions"],
+							"query": [
+								{"key": "semester", "value": "6"},
+								{"key": "department", "value": "CS"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Question",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"questionText\": \"What is polymorphism in OOP?\",\n  \"optionA\": \"Multiple forms of a single entity\",\n  \"optionB\": \"Single form of multiple entities\",\n  \"optionC\": \"No forms\",\n  \"optionD\": \"Abstract forms only\",\n  \"correctOption\": \"A\",\n  \"semester\": 6,\n  \"department\": \"CS\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/questions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "questions"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Question Set Management",
+			"item": [
+				{
+					"name": "Get All Question Sets",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        pm.collectionVariables.set('questionSetId', jsonData[0].id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/question-sets",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "question-sets"]
+						}
+					}
+				},
+				{
+					"name": "Get Question Set by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/question-sets/{{questionSetId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "question-sets", "{{questionSetId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Question Sets by Semester and Department",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/question-sets?semester=6&department=CS",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "question-sets"],
+							"query": [
+								{"key": "semester", "value": "6"},
+								{"key": "department", "value": "CS"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Test Session Workflow",
+			"item": [
+				{
+					"name": "Start Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('testSessionId', jsonData.session.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usn\": \"{{usn}}\",\n  \"studentName\": \"John Doe\",\n  \"semester\": 6,\n  \"questionSetId\": {{questionSetId}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/test-sessions/start",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test-sessions", "start"]
+						}
+					}
+				},
+				{
+					"name": "Submit Answer - Question 1",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"questionId\": 1,\n  \"selectedOption\": \"B\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/test-sessions/{{testSessionId}}/answer",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test-sessions", "{{testSessionId}}", "answer"]
+						}
+					}
+				},
+				{
+					"name": "Submit Answer - Question 2",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"questionId\": 2,\n  \"selectedOption\": \"C\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/test-sessions/{{testSessionId}}/answer",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test-sessions", "{{testSessionId}}", "answer"]
+						}
+					}
+				},
+				{
+					"name": "Submit Answer - Question 3",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"questionId\": 3,\n  \"selectedOption\": \"A\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/test-sessions/{{testSessionId}}/answer",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test-sessions", "{{testSessionId}}", "answer"]
+						}
+					}
+				},
+				{
+					"name": "Submit Test",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/test-sessions/{{testSessionId}}/submit",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test-sessions", "{{testSessionId}}", "submit"]
+						}
+					}
+				},
+				{
+					"name": "Get Test Session by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/test-sessions/{{testSessionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test-sessions", "{{testSessionId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Test Sessions by USN",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/test-sessions/usn/{{usn}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test-sessions", "usn", "{{usn}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Marks and Results",
+			"item": [
+				{
+					"name": "Get Result by Test Session",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/marks/test-session/{{testSessionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "marks", "test-session", "{{testSessionId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Results by USN",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/marks/usn/{{usn}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "marks", "usn", "{{usn}}"]
+						}
+					}
+				},
+				{
+					"name": "Get All Results (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/marks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "marks"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Dashboard Statistics",
+			"item": [
+				{
+					"name": "Get Overall Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/marks/dashboard",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "marks", "dashboard"]
+						}
+					}
+				},
+				{
+					"name": "Get Dashboard Stats by USN",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/marks/dashboard/usn/{{usn}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "marks", "dashboard", "usn", "{{usn}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Dashboard Stats by Department",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/marks/dashboard/department/CS",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "marks", "dashboard", "department", "CS"]
+						}
+					}
+				},
+				{
+					"name": "Get Dashboard Stats by Semester",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/marks/dashboard/semester/6",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "marks", "dashboard", "semester", "6"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Test Scenarios",
+			"item": [
+				{
+					"name": "Invalid Semester (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usn\": \"1MS22CS023\",\n  \"studentName\": \"John Doe\",\n  \"semester\": 5,\n  \"questionSetId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/test-sessions/start",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test-sessions", "start"]
+						}
+					}
+				},
+				{
+					"name": "Invalid Department (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usn\": \"1MS22EC023\",\n  \"studentName\": \"Jane Smith\",\n  \"semester\": 6,\n  \"questionSetId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/test-sessions/start",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "test-sessions", "start"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
